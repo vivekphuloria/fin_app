@@ -7,7 +7,7 @@ from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe
 from langchain.agents.agent_types import AgentType
 
 from pydantic import BaseModel, Field
-from typing import Literal 
+from typing import Literal, List
 
 
 from datetime import datetime
@@ -28,10 +28,10 @@ class primaryClf(BaseModel):
     company          : str = Field(description = "Company name in the query")
     ticker           : str = Field(description = "Ticker name of the Query")
     information_type : Literal["General", 'Financial','Market'] = Field(description = 'Type of Information Requested.')
-    required_data    : Literal["longName", "longBusinessSummary", "sector", "industry", "website", "fax", "phone", "country", "zip", "city", "address2", "address1",
+    required_data    : List[Literal["longName", "longBusinessSummary", "sector", "industry", "website", "fax", "phone", "country", "zip", "city", "address2", "address1",
                                'income_stmt', 'balance_sheet', 'cash_flow', 'quarterly_income_stmt', 'quarterly_balance_sheet', 'quarterly_cash_flow',
                                "history"
-                               ] \
+                               ]] \
         = Field(description = 'List of data Required for fulfilling the query. Allowed values given in the prompt')
     start_date       : str = Field(description = 'Start date of the time requested in user query. YYYY-MM-DD format')
     end_date         : str = Field(description = 'End date of the time requested in user query. YYYY-MM-DD format')
@@ -86,7 +86,7 @@ def get_data_response_chain(LLM, d_data, system_prompt):
     [
         ("system", system_prompt),
         ("ai", json.dumps(d_data)),
-        ("human", "Query : {user_query}")
+        ("human", '{input}' )
     ]
     )
     chain  = prompt | LLM | StrOutputParser()
@@ -104,7 +104,7 @@ def get_df_agent(LLM, l_df, system_prompt):
     prompt = ChatPromptTemplate.from_messages(
     [
         ("system", system_prompt),
-        ("human", "Query : {user_query}"),
+        ("human", '{input}'),
         ("placeholder", "{agent_scratchpad}"),
     ]
     )

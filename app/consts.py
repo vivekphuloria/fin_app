@@ -3,7 +3,9 @@ from langchain.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough, RunnableLambda
 from typing import TypedDict, List , Annotated, Dict, Any
 from langgraph.graph.message import add_messages
+from dotenv import load_dotenv
 
+load_dotenv()
 
 
 l_llm = {v: ChatOpenAI(model=v) for v in ["gpt-4o","gpt-4o-mini"]}
@@ -34,6 +36,7 @@ class GraphState(TypedDict):
     ticker:str
     information_type:str
     required_data: List[str]
-    time_duration: str
+    start_date: str
+    end_date: str
     generation: str
     messages:  Annotated[list, add_messages]
