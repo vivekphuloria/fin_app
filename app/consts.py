@@ -3,6 +3,8 @@ from langchain.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough, RunnableLambda
 from typing import TypedDict, List , Annotated, Dict, Any
 from langgraph.graph.message import add_messages
+from langchain_openai.embeddings import OpenAIEmbeddings
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,6 +14,9 @@ l_llm = {v: ChatOpenAI(model=v) for v in ["gpt-4o","gpt-4o-mini"]}
 create_prompt = lambda system_prompt : ChatPromptTemplate.from_messages([('system',system_prompt),('human','{input}')])
 run_obj_to_dict = RunnableLambda(lambda x: x.dict())
 run_get_output = RunnableLambda(lambda x: x['output'])
+
+PINECONE_INDEX_NAME = 'fina-app-feb25'
+EMBEDDING_MODEL = OpenAIEmbeddings()
 
 # Defining state of Graph
 
