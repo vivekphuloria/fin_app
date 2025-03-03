@@ -33,6 +33,7 @@ class primaryClf(BaseModel):
                                "history"
                                ]] \
         = Field(description = 'List of data Required for fulfilling the query. Allowed values given in the prompt')
+    tags           : List[Literal["Operational Metrics",  "Financial Metrics",  "Key Personell",  "Product Strategy",  "Expansion" , "Competition",  "Sectoral Phenomenon",  "Regulatory", "Macro Factors",  "Organizational Details",  "MnA", "Alliances"]] = Field("List of Relevant tags to be searched from the company filings ")
     start_date       : str = Field(description = 'Start date of the time requested in user query. YYYY-MM-DD format')
     end_date         : str = Field(description = 'End date of the time requested in user query. YYYY-MM-DD format')
 
@@ -57,11 +58,15 @@ You have to identify the following items
     - If "information_type"="Financial", if the query is requesting quarterly data, choose from ['quarterly_income_stmt', 'quarterly_balance_sheet', 'quarterly_cash_flow'] Else, for annual data choose from ['income_stmt', 'balance_sheet', 'cash_flow']
     - If "information_type"="Market", choose "history" for the stock history
 
-- 5) "start_date" : *Start* Date if the user talking about particular time-duration. Respond keeping in mind that the date today is {today_str}.
+- 5) "tags" : What all type of information may be relevant for the answering the query. You will be provided wit a list of possible tags.
+    Passages related to these tags will be filtered from company filings - Annual Reports, Transcripts, etc.
+    Choose as many tags from this list as may be relevant for the user query.
+    List of possible tags: ["Operational Metrics",  "Financial Metrics",  "Key Personell",  "Product Strategy",  "Expansion" , "Competition",  "Sectoral Phenomenon",  "Regulatory", "Macro Factors",  "Organizational Details",  "MnA", "Alliances"]
+- 6) "start_date" : *Start* Date if the user talking about particular time-duration. Respond keeping in mind that the date today is {today_str}.
 This should be expressed in YYYY-MM-DD format, for example for a query talking about this month, start date should be {month_start}
 In case of no time mentioned it should be "1900-01-01"
 
-- 6) "start_date" : *End* Date if the user talking about particular time-duration. Respond keeping in mind that the date today is {today_str}.
+- 7) "start_date" : *End* Date if the user talking about particular time-duration. Respond keeping in mind that the date today is {today_str}.
 This should be expressed in YYYY-MM-DD format, for example for a query talking about this month, start date should be {month_end}
 In case of no time mentioned it should be "1900-01-31"
 

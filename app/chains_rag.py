@@ -73,7 +73,7 @@ def get_excerpt_chain():
     - Organizational Details: If the excerpt talks about the organization structure, or about any parent or subsidiary organization.
     - MnA: If the excerpt talks about any mergers or acquisisions that the company has undertaken.
     - Alliances: If the company has entered into a strategic alliance or partnership with any other organization
-    Ensure that the each of tag is one of these: ["Operational Metrics",  "Financial Metrics",  "Key Personell",  "Product Strategy",  "Expansion" , "Competition",  "Sectoral Phenomenon",  "Regulatory", "Macro Factors",  "Organizational Details",  "MnA", "Alliances"] = Field(description = "Tag of the passage")
+    Ensure that the each of tag is one of these: ["Operational Metrics",  "Financial Metrics",  "Key Personell",  "Product Strategy",  "Expansion" , "Competition",  "Sectoral Phenomenon",  "Regulatory", "Macro Factors",  "Organizational Details",  "MnA", "Alliances"]
     Do NOT use any other tag
     """.strip()
     get_l_excerpts =  RunnableLambda(lambda x: x.model_dump()['l_excerpt'])

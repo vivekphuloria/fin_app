@@ -1,14 +1,36 @@
 from typing import TypedDict, List , Annotated, Dict, Any
 from langgraph.graph.message import add_messages
 from langchain_core.messages import AIMessage, HumanMessage
+from langchain_pinecone import PineconeVectorStore
 
 from datetime import datetime as dt 
 import yfinance as yf
 
-from .consts import GraphState, l_llm
-from .chains import get_primary_chain, get_data_response_chain , get_df_agent
+from app.consts import PINECONE_INDEX_NAME, EMBEDDING_MODEL
+from app.consts import GraphState, l_llm
+from app.chains import get_primary_chain, get_data_response_chain , get_df_agent
 
 
+def retrive_node(state: GraphState) -> Dict[str, Any] :
+    vectorstore = PineconeVectorStore(
+        index_name=PINECONE_INDEX_NAME,
+        embedding=EMBEDDING_MODEL)
+
+    # For retrival, only metadata_tags can be used. Only selecting those from the classification
+    # metadata_tag_filters = list(set(state['classification']).intersection(set(METADATA_TAGS)))
+    full_metadata_filter = { 
+        "$and": 
+        [
+            {"tag": {"$in":state["tags"]}},
+            {"ticker": state['ticker'] }
+      ] 
+     }
+    retriver = vectorstore.as_retriever(
+        search_kwargs= {
+            "filter": full_metadata_filter,
+            "k": RETRIVER_FETCH_K})
+    docs = retriver.invoke(state['question'])
+    return {'documents':docs}
 
 
 def get_human_node(state: GraphState)-> Dict[str, Any]:

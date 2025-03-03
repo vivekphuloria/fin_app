@@ -6,6 +6,6 @@ def primary_node_router(state: GraphState)-> str:
     elif state["information_type"] == "Financial":
         return "YFIN_FIN_NODE"
     elif state["information_type"] == "Market":
-        return "YFIN_FIN_NODE"    
+        return "YFIN_MARKET_NODE"    
     else:
         return "END"

@@ -14,7 +14,7 @@ l_llm = {v: ChatOpenAI(model=v) for v in ["gpt-4o","gpt-4o-mini"]}
 create_prompt = lambda system_prompt : ChatPromptTemplate.from_messages([('system',system_prompt),('human','{input}')])
 run_obj_to_dict = RunnableLambda(lambda x: x.dict())
 run_get_output = RunnableLambda(lambda x: x['output'])
-
+RAG_DOCS_FOL = "C:/Users/vivek.phuloria/Documents/side_projects/fin5/rag_docs"
 PINECONE_INDEX_NAME = 'fina-app-feb25'
 EMBEDDING_MODEL = OpenAIEmbeddings()
 
@@ -28,6 +28,7 @@ class GraphState(TypedDict):
         query: User Query
         company: Name of company in user query
         ticker: Ticker of comapny in user query
+        tags: tags required for filtering excerpts from company filings
         information_type: Type of user query
         required_data: Information required from yfinance API
         time_duration: time_duration extracted from the user query
@@ -39,6 +40,7 @@ class GraphState(TypedDict):
     query: str
     company: str
     ticker:str
+    tags: List[str]
     information_type:str
     required_data: List[str]
     start_date: str
