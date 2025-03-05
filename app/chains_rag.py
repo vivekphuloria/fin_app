@@ -1,13 +1,19 @@
 from langchain.prompts import ChatPromptTemplate 
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough, RunnableLambda
 from langchain_core.output_parsers import StrOutputParser
-from app.consts import l_llm
+
 from typing import Literal, List
 from pydantic import BaseModel, Field
-from app.consts import create_prompt
 
-LLM_s = l_llm['gpt-4o-mini']
-LLM_l = l_llm['gpt-4o']
+from datetime import datetime
+from dateutil import relativedelta
+import os
+
+from app.consts import create_prompt
+# from app.consts import l_llm
+
+# LLM_s = l_llm['gpt-4o-mini']
+# LLM_l = l_llm['gpt-4o']
 
 def get_relevance_chain():
     class Relevance(BaseModel):
@@ -81,5 +87,3 @@ def get_excerpt_chain():
     chain = create_prompt(excerpt_prompt) | llm_l_st | get_l_excerpts
 
     return chain
-
-
