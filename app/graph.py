@@ -4,9 +4,9 @@ from langgraph.graph import START, END, StateGraph
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.checkpoint.sqlite import SqliteSaver
 
-from .consts import GraphState
-from .nodes import get_human_node, get_primary_node, get_yf_info_node, get_retrive_node, get_df_analysis_node, get_generation_node
-from .edge import primary_node_router
+from consts import GraphState
+from nodes import get_human_node, get_primary_node, get_yf_info_node, get_retrive_node, get_df_analysis_node, get_generation_node
+# from edge import primary_node_router ## No Routing required now
 
 
 
@@ -34,20 +34,20 @@ def get_graph():
     graph.add_edge(["RAG_RETRIVER","DF_ANALYSIS"], "GENERATION")
     graph.add_edge("GENERATION", END)
 
-
+    ## KEeping it here just in case I want to use conditional edges again sometime 
     # graph.add_conditional_edges("PRIMARY_NODE", primary_node_router) ## Classification node can route to unrelated or retriver node
-
-    # graph.add_edge("YFIN_GENERAL_NODE", END)
-    # graph.add_edge("YFIN_FIN_NODE", END)
-    # graph.add_edge("YFIN_MARKET_NODE", END)
-
     
-    # memory = SqliteSaver.from_conn_string('fin5_app.sqlite')
-    # app = graph.compile(checkpointer=memory)
-    
-    app = graph.compile()
+    ### Trying with memmory 
+    # memory = SqliteSaver.from_conn_string('fin_rag_app.sqlite')
+    memory = MemorySaver()
+
+    app = graph.compile(checkpointer=memory, interrupt_before=["HUMAN"])
+
+
+    ### Wuthout the memmory 
+    # app = graph.compile()
     
     # Draw graph onto file; Optional  
-    app.get_graph().draw_mermaid_png(output_file_path="graph.png")
+    # app.get_graph().draw_mermaid_png(output_file_path="graph.png")
 
     return app

@@ -1,4 +1,4 @@
-from .consts import GraphState
+from consts import GraphState
 
 def primary_node_router(state: GraphState)-> str:
     if state["information_type"] == "General":

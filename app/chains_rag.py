@@ -15,7 +15,7 @@ from app.consts import create_prompt
 # LLM_s = l_llm['gpt-4o-mini']
 # LLM_l = l_llm['gpt-4o']
 
-def get_relevance_chain():
+def get_relevance_chain(LLM):
     class Relevance(BaseModel):
         """ Whether a page is relevant or not """ 
         rel : Literal["RELEVANT",  "IRRELEVANT"] = Field(description = "Whether the page-content is relevant or not")
@@ -28,14 +28,14 @@ def get_relevance_chain():
     It is irrelevant if the passage seems is filled with legal jargon or are highly technical details of numbers or numerical calculations, or seems completely unrelated to the business.
     Your response has to a single word - "RELEVANT" or "IRRELEVANT"
     """
-    chain = create_prompt(relevance_prompt) | LLM_s.with_structured_output(Relevance) | RunnableLambda(lambda x: x.rel == 'RELEVANT')
+    chain = create_prompt(relevance_prompt) | LLM.with_structured_output(Relevance) | RunnableLambda(lambda x: x.rel == 'RELEVANT')
     return chain
 
 
 
 
 
-def get_excerpt_chain():
+def get_excerpt_chain(LLM):
     class Excerpt(BaseModel):
         """ 
         An excerpt with it's tag
@@ -83,7 +83,7 @@ def get_excerpt_chain():
     Do NOT use any other tag
     """.strip()
     get_l_excerpts =  RunnableLambda(lambda x: x.model_dump()['l_excerpt'])
-    llm_l_st = LLM_l.with_structured_output(ListExcerpts)
+    llm_l_st = LLM.with_structured_output(ListExcerpts)
     chain = create_prompt(excerpt_prompt) | llm_l_st | get_l_excerpts
 
     return chain

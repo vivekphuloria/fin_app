@@ -3,14 +3,16 @@ from langgraph.graph.message import add_messages
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_pinecone import PineconeVectorStore
 
-from datetime import datetime 
+from datetime import datetime
+import pandas as pd
+from io import StringIO  
 import yfinance as yf
 
-from app.consts import PINECONE_INDEX_NAME, EMBEDDING_MODEL, RETRIVER_FETCH_K
-from app.consts import GraphState, l_llm, l_all_end_dates, l_all_st_dates
-from app.consts import tags_struct_info, tags_struct_fin_annual, tags_struct_fin_quarterly, tags_struct_market
+from consts import PINECONE_INDEX_NAME, EMBEDDING_MODEL, RETRIVER_FETCH_K
+from consts import GraphState, l_llm, l_all_end_dates, l_all_st_dates
+from consts import tags_struct_info, tags_struct_fin_annual, tags_struct_fin_quarterly, tags_struct_market
 
-from app.chains import get_primary_chain, get_df_analysis_chain, get_generation_chain
+from chains import get_primary_chain, get_df_analysis_chain, get_generation_chain
 import json
 
 def get_human_node(state: GraphState)-> Dict[str, Any]:
@@ -99,13 +101,20 @@ def get_yf_info_node(state):
         hist['percentage_change'] = hist.pct_change()['Close']
 
         l_df.append(hist)
+    
+    # Changing DF to csv strings so that they can be serialized for memmory
+    l_df_csv = []
+    for df in l_df:
+        l_df_csv.append(df.to_csv(index = False))
 
     # print('---EXITING YFIN INFO---')
-    return {"list_info": d_info, "list_df": l_df}
+    return {"list_info": d_info, "list_df": l_df_csv}
 
 
 def get_df_analysis_node(state: GraphState) -> Dict[str, Any] :
-    chain = get_df_analysis_chain(LLM=l_llm['gpt-4o'], l_df=state['list_df'])
+    l_df_obj = [pd.read_csv(StringIO(df_csv)) for df_csv in state['list_df']]
+
+    chain = get_df_analysis_chain(LLM=l_llm['gpt-4o'], l_df=l_df_obj)
     res = chain.invoke({"input": state['query']})
 
     # print('---EXITING DF ANALSIS---')
@@ -118,12 +127,28 @@ def get_generation_node(state: GraphState) -> Dict[str, Any] :
     gen = gen_chain.invoke( input = {
         'query' : state["query"],
         'list_info' : json.dumps(state["list_info"]),
-        'list_df' : "\n\n------------\n\n".join(df.to_markdown() for df in state['list_df']),
+        'list_df' : "\n\n------------\n\n".join(pd.read_csv(StringIO(df)).to_markdown() for df in state['list_df']),
         'df_analysis' : state['df_analysis'],
         'rag_data' : "\n--------\n".join(doc.page_content for doc in state['rag_documents'])
         }
     )   
-    return {"generation": gen} 
+    return {"generation": gen, "messages": AIMessage(gen) } 
+
+
+
+def get_nodes() -> Dict:
+    """
+    return dictionary of 
+    """
+    d_nodes = {
+    "HUMAN" :  get_human_node,
+    "PRIMARY_CLF" :  get_primary_node,
+    "YFIN_INFO" :  get_yf_info_node,
+    "RAG_RETRIVER" :  get_retrive_node,
+    "DF_ANALYSIS" :  get_df_analysis_node,
+    "GENERATION" :  get_generation_node,
+    }
+    return d_nodes
 
 
 

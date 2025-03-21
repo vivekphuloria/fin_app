@@ -19,8 +19,8 @@ import yfinance as yf
 
 
 
-from app.consts import create_prompt, run_obj_to_dict, run_get_output
-from app.consts import tags_struct_info, tags_struct_fin_annual, tags_struct_fin_quarterly, tags_struct_market,d_tags_rag
+from consts import create_prompt, run_obj_to_dict, run_get_output
+from consts import tags_struct_info, tags_struct_fin_annual, tags_struct_fin_quarterly, tags_struct_market,d_tags_rag
 
 l_all_struct_tags = tags_struct_info + tags_struct_fin_annual + tags_struct_fin_quarterly + tags_struct_market
 l_rag_tags = list(d_tags_rag.keys())
